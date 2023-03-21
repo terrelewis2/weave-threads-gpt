@@ -1,20 +1,28 @@
-# Paul Graham GPT
+# Weave Threads GPT
 
-AI-powered search and chat for [Paul Graham's](https://twitter.com/paulg) [essays](http://www.paulgraham.com/articles.html).
+GPT-powered search and chat for Twitter threads from your favorite tweeters.
+
+The project currently supports threads from these creators:
+
+[Shreyas Doshi](https://twitter.com/shreyas)
+
+[Julie Zhuo](https://twitter.com/joulee)
+
+[Greg Isenberg](https://twitter.com/gregisenberg)
+
+[Sooraj Chandran](https://twitter.com/soorajchandran_)
 
 All code & data used is 100% open-source.
 
 ## Dataset
 
-The dataset is a CSV file containing all text & embeddings used.
-
-Download it [here](https://drive.google.com/file/d/1BxcPw2mn0VYFucc62wlt9H0nQiOu38ki/view?usp=sharing).
+The threads and book datasets are JSON files file containing all threads & their corresponding chunks respectively.
 
 I recommend getting familiar with fetching, cleaning, and storing data as outlined in the scraping and embedding scripts below, but feel free to skip those steps and just use the dataset.
 
 ## How It Works
 
-Paul Graham GPT provides 2 things:
+Weave Threads GPT provides 2 things:
 
 1. A search interface.
 2. A chat interface.
@@ -23,7 +31,7 @@ Paul Graham GPT provides 2 things:
 
 Search was created with [OpenAI Embeddings](https://platform.openai.com/docs/guides/embeddings) (`text-embedding-ada-002`).
 
-First, we loop over the essays and generate embeddings for each chunk of text.
+First, we loop over the threads and generate embeddings for each chunk of text.
 
 Then in the app we take the user's search query, generate an embedding, and use the result to find the most similar passages from the book.
 
@@ -37,7 +45,7 @@ Results are ranked by similarity score and returned to the user.
 
 Chat builds on top of search. It uses search results to create a prompt that is fed into GPT-3.5-turbo.
 
-This allows for a chat-like experience where the user can ask questions about the book and get answers.
+This allows for a chat-like experience where the user can ask questions regarding the tweeter's areas of expertise and get answers.
 
 ## Running Locally
 
@@ -64,7 +72,7 @@ I recommend turning on Row Level Security and setting up a service role to use w
 3. Clone repo
 
 ```bash
-git clone https://github.com/mckaywrigley/paul-graham-gpt.git
+git clone https://github.com/terrelewis2/weave-threads-gpt.git
 ```
 
 4. Install dependencies
@@ -79,22 +87,31 @@ Create a .env.local file in the root of the repo with the following variables:
 
 ```bash
 OPENAI_API_KEY=
-
 NEXT_PUBLIC_SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_SERVICE_ROLE_KEY= 
 ```
 
 ### Dataset
 
-6. Run scraping script
+6. Run tweet_fetcher script
+I wrote this script in Python using the Tweepy library, you can do the equivalent in Node.js as well if you're comformatable with that.
+
+Initialize the `twitter_handle` field with the handle of the user whose tweets you'd like to fetch
 
 ```bash
-npm run scrape
+python tweet_fetcher.py
+```
+This fetches all the twitter threads of the user from the past 3 years. You might need to manually filter out some threads that don't seem necessary.
+
+7. Run formatting script
+
+```bash
+npm run format
 ```
 
-This scrapes all of the essays from Paul Graham's website and saves them to a json file.
+This formats all the threads and splits them into relevant chunks and saves them to a json file.
 
-7. Run embedding script
+8. Run embedding script
 
 ```bash
 npm run embed
@@ -108,7 +125,7 @@ This process will take 20-30 minutes.
 
 ### App
 
-8. Run app
+9. Run app
 
 ```bash
 npm run dev
@@ -116,20 +133,10 @@ npm run dev
 
 ## Credits
 
-Thanks to [Paul Graham](https://twitter.com/paulg) for his writing.
+Thanks to [Mckay Wrigley](https://twitter.com/mckaywrigley) whose project [PaulGrahamGPT](https://github.com/mckaywrigley/paul-graham-gpt) served as the foundation for this project.
 
-I highly recommend you read his essays.
-
-3 years ago they convinced me to learn to code, and it changed my life.
+I also want to thank all the tweeters whose threads made this project possible. I've learnt over the years from their threads and I hope this tool can enhance that learning experience
 
 ## Contact
 
-If you have any questions, feel free to reach out to me on [Twitter](https://twitter.com/mckaywrigley)!
-
-## Notes
-
-I sacrificed composability for simplicity in the app.
-
-Yes, you can make things more modular and reusable.
-
-But I kept pretty much everything in the homepage component for the sake of simplicity.
+If you have any questions, feel free to reach out to me on [Twitter](https://twitter.com/terrelewis2)!
