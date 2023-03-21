@@ -209,7 +209,7 @@ export default function Home() {
         />
         <link
           rel="icon"
-          href="/favicon.ico"
+          href="/weave.ico"
         />
       </Head>
 

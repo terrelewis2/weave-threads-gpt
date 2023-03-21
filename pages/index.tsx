@@ -8,7 +8,7 @@ export default function Home(): JSX.Element {
     <div className={styles.container}>
       <Head>
         <title>Weave Threads GPT</title>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/weave.ico" />
       </Head>
 
       <main>
@@ -17,7 +17,7 @@ export default function Home(): JSX.Element {
         </h1>
 
         <p className={styles.description}>
-          Gain insights from Twitter Threads
+        Gain knowledge and insights from Twitter Threads of your favourite tweeters
         </p>
 
         <div className={styles.grid}>
@@ -28,7 +28,7 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"What is product management?"
             },
           }} className={styles.card}>
-          <Image src="/images/shreyas.jpeg" alt="Profile picture" />
+          <Image src="/images/shreyas.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
             <h3>Shreyas Doshi &rarr;</h3>
             <p>Shreyas has led & scaled products at Stripe, Twitter, Google, and Yahoo. Learn all about what it takes to be a successful PM.</p>
             <br/>
@@ -42,9 +42,9 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"How to share feedback with my manager?"
             },
           }} className={styles.card}>
-          <Image src="/images/julie.jpeg" alt="Profile picture" />
+          <Image src="/images/julie.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
             <h3>Julie Zhuo &rarr;</h3>
-            <p>As founder at Sundial, former VP design at Meta and author of &quot;The Making of a Manager&quot;, Julie&quot;s threads capture all her learnings.</p>
+            <p>As founder at Sundial, former VP design at Meta and author of <b>The Making of a Manager</b>, Julie&#39;s threads capture all her learnings.</p>
             <br/>
             <p><b><span className={styles.highlightBold}>92</span> Threads</b></p>
           </Link>
@@ -56,9 +56,9 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"How to build an online community?"
             },
           }} className={styles.card}>
-          <Image src="/images/greg.jpeg" alt="Profile picture" />
+          <Image src="/images/greg.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
             <h3>Greg Isenberg &rarr;</h3>
-            <p>Building an online community? Greg&quot;s insights on building online communities will teach you all that there is to know.</p>
+            <p>Building an online community? Greg&#39;s insights on building online communities will teach you all that there is to know.</p>
             <br/>
             <p><b><span className={styles.highlightBold}>109</span> Threads</b></p>
           </Link>
@@ -70,7 +70,7 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"How do I move to Europe with a tech job?"
             },
           }} className={styles.card}>
-          <Image src="/images/sooraj.jpeg" alt="Profile picture" />
+          <Image src="/images/sooraj.jpeg" alt="Profile picture" width={100} height={100}className={styles['profile-pic']}/>
             <h3>Sooraj Chandran &rarr;</h3>
             <p>Looking to pursue a tech career in Europe? Sooraj has been there and done that. Learm more from his experiences and insights.</p>
             <br/>
@@ -86,7 +86,7 @@ export default function Home(): JSX.Element {
           rel="noopener noreferrer"
         >
           Powered by{' '}
-          <Image src="/vercel.svg" alt="Vercel" className={styles.logo} />
+          <Image src="/vercel.svg" alt="Vercel" width={100} height={100} className={styles['logo']}/>
         </a>
       </footer>
 
