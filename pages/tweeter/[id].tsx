@@ -93,7 +93,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ query, apiKey, matches: matchCount })
+      body: JSON.stringify({ query, apiKey, matches: matchCount, id})
     });
 
     if (!searchResponse.ok) {
