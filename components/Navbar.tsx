@@ -16,7 +16,7 @@ export const Navbar: FC<NavbarProps> = ({ rightLink }) => {
     <div className="flex h-[60px] border-b border-gray-300 py-2 px-8 items-center justify-between">
       <div className="font-bold text-2xl flex items-center">
         <Link className="hover:opacity-50" href="/">
-          Weave <span className={styles.highlight}>Threads GPT</span>
+          Weave <span className={styles.highlight}>Threads</span> GPT
         </Link>
       </div>
       <div>
@@ -28,7 +28,7 @@ export const Navbar: FC<NavbarProps> = ({ rightLink }) => {
         >
           <div className="hidden sm:flex">{rightLink.label}</div>
 
-          <IconExternalLink className="ml-1" size={20} />
+          <IconExternalLink className="ml-1" size={20} color="#1DA1F2"/>
         </a>
       </div>
     </div>

@@ -282,7 +282,7 @@ export default function Home() {
                 <button>
                   <IconArrowRight
                     onClick={mode === "search" ? handleSearch : handleAnswer}
-                    className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-blue-500 p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10 text-white"
+                    className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-[#1da1f2] p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10 text-white"
                   />
                 </button>
               </div>
@@ -312,7 +312,7 @@ export default function Home() {
                 </div>
               </div>
             ) : answer ? (
-              <div className="mt-6">
+              <div className="mt-6 flex h-full w-full max-w-[750px] flex-col px-3 pt-4 sm:pt-8">
                 <div className="font-bold text-2xl mb-2">Answer</div>
                 <Answer text={answer} />
 
@@ -322,10 +322,10 @@ export default function Home() {
                   {chunks.map((chunk, index) => (
                     <div key={index}>
                       <div className="mt-4 border border-zinc-600 rounded-lg p-4">
-                        <div className="flex justify-between">
+                        <div className="flex auto">
                           <div>
-                            <div className="font-bold text-xl">{chunk.essay_url}</div>
-                            <div className="mt-1 font-bold text-sm">{chunk.essay_date}</div>
+                            <div className="me-4 font-bold text-xl">View Thread</div>
+                            <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
                           </div>
                           <a
                             className="hover:opacity-50 ml-2"
@@ -333,10 +333,12 @@ export default function Home() {
                             target="_blank"
                             rel="noreferrer"
                           >
-                            <IconExternalLink />
+                            <IconExternalLink 
+                              color="#1DA1F2"
+                            />
                           </a>
                         </div>
-                        <div className="mt-2">{chunk.content}</div>
+                        <div className="mt-3">{chunk.content}</div>
                       </div>
                     </div>
                   ))}
@@ -348,27 +350,29 @@ export default function Home() {
                 {chunks.map((chunk, index) => (
                   <div key={index}>
                     <div className="mt-4 border border-zinc-600 rounded-lg p-4">
-                      <div className="flex justify-between">
-                        <div>
-                          <div className="font-bold text-xl">{chunk.essay_url}</div>
-                          <div className="mt-1 font-bold text-sm">{chunk.essay_date}</div>
+                    <div className="flex auto">
+                          <div>
+                            <div className="me-4 font-bold text-xl">View Thread</div>
+                            <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
+                          </div>
+                          <a
+                            className="hover:opacity-50 ml-2"
+                            href={chunk.essay_url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <IconExternalLink 
+                               color="#1DA1F2"
+                            />
+                          </a>
                         </div>
-                        <a
-                          className="hover:opacity-50 ml-2"
-                          href={chunk.essay_url}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          <IconExternalLink />
-                        </a>
-                      </div>
                       <div className="mt-2">{chunk.content}</div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="mt-6 text-center text-lg">{`AI-powered search & chat for Twitter Threads written by @${id}`}</div>
+              <div className="mt-6 text-center text-lg">{`AI-powered search & chat for threads written by @${id}`}</div>
             )}
           </div>
         </div>
