@@ -2,33 +2,40 @@ export enum OpenAIModel {
   DAVINCI_TURBO = "gpt-3.5-turbo"
 }
 
-export type PGEssay = {
-  title: string;
+export type ThreadEssay = {
+  twitter_handle: string;
   url: string;
   date: string;
-  thanks: string;
   content: string;
   length: number;
   tokens: number;
-  chunks: PGChunk[];
+  chunks: ThreadChunk[];
 };
 
-export type PGChunk = {
-  essay_title: string;
+export type ThreadChunk = {
+  twitter_handle: string;
   essay_url: string;
   essay_date: string;
-  essay_thanks: string;
   content: string;
   content_length: number;
   content_tokens: number;
   embedding: number[];
 };
 
-export type PGJSON = {
+export type TweeterJSON = {
   current_date: string;
   author: string;
   url: string;
   length: number;
   tokens: number;
-  essays: PGEssay[];
+  essays: ThreadEssay[];
+};
+
+
+export type Thread = {
+  thread: string;
+  url: string;
+  date: string;
+  tweeter: string;
+  status_id: string;
 };

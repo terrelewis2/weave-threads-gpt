@@ -2,12 +2,11 @@
 create extension vector;
 
 -- RUN 2nd
-create table pg (
+create table tweeter (
   id bigserial primary key,
-  essay_title text,
+  twitter_handle text,
   essay_url text,
   essay_date text,
-  essay_thanks text,
   content text,
   content_length bigint,
   content_tokens bigint,
@@ -15,17 +14,17 @@ create table pg (
 );
 
 -- RUN 3rd after running the scripts
-create or replace function pg_search (
+create or replace function tweeter_search (
   query_embedding vector(1536),
   similarity_threshold float,
-  match_count int
+  match_count int,
+  input_handle text
 )
 returns table (
   id bigint,
-  essay_title text,
+  twitter_handle text,
   essay_url text,
   essay_date text,
-  essay_thanks text,
   content text,
   content_length bigint,
   content_tokens bigint,
@@ -36,23 +35,23 @@ as $$
 begin
   return query
   select
-    pg.id,
-    pg.essay_title,
-    pg.essay_url,
-    pg.essay_date,
-    pg.essay_thanks,
-    pg.content,
-    pg.content_length,
-    pg.content_tokens,
-    1 - (pg.embedding <=> query_embedding) as similarity
-  from pg
-  where 1 - (pg.embedding <=> query_embedding) > similarity_threshold
-  order by pg.embedding <=> query_embedding
+    tweeter.id,
+    tweeter.twitter_handle,
+    tweeter.essay_url,
+    tweeter.essay_date,
+    tweeter.content,
+    tweeter.content_length,
+    tweeter.content_tokens,
+    1 - (tweeter.embedding <=> query_embedding) as similarity
+  from tweeter
+  where tweeter.twitter_handle <> input_handle
+  and 1 - (tweeter.embedding <=> query_embedding) > similarity_threshold
+  order by tweeter.embedding <=> query_embedding
   limit match_count;
 end;
 $$;
 
 -- RUN 4th
-create index on pg 
+create index on tweeter 
 using ivfflat (embedding vector_cosine_ops)
 with (lists = 100);

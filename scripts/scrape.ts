@@ -1,114 +1,43 @@
-import { PGChunk, PGEssay, PGJSON } from "@/types";
-import axios from "axios";
-import * as cheerio from "cheerio";
+import { ThreadChunk, ThreadEssay, TweeterJSON, Thread } from "@/types";
 import fs from "fs";
 import { encode } from "gpt-3-encoder";
 
-const BASE_URL = "http://www.paulgraham.com/";
 const CHUNK_SIZE = 200;
 
-const getLinks = async () => {
-  const html = await axios.get(`${BASE_URL}articles.html`);
-  const $ = cheerio.load(html.data);
-  const tables = $("table");
-
-  const linksArr: { url: string; title: string }[] = [];
-
-  tables.each((i, table) => {
-    if (i === 2) {
-      const links = $(table).find("a");
-      links.each((i, link) => {
-        const url = $(link).attr("href");
-        const title = $(link).text();
-
-        if (url && url.endsWith(".html")) {
-          const linkObj = {
-            url,
-            title
-          };
-
-          linksArr.push(linkObj);
-        }
-      });
-    }
-  });
-
-  return linksArr;
+const getThreads = async () => {
+    const jsonString = fs.readFileSync("/Users/terrellewis/Desktop/weave-threads-gpt/scripts/joulee-threads.json", 'utf8');
+    const data = JSON.parse(jsonString);
+    return data.threads;
 };
 
-const getEssay = async (linkObj: { url: string; title: string }) => {
-  const { title, url } = linkObj;
+const getEssay = async (threadObj: Thread) => {
+  const { thread, url , date, tweeter, status_id} = threadObj;
 
-  let essay: PGEssay = {
-    title: "",
+  let essay: ThreadEssay = {
+    twitter_handle: "",
     url: "",
     date: "",
-    thanks: "",
     content: "",
     length: 0,
     tokens: 0,
     chunks: []
   };
 
-  const fullLink = BASE_URL + url;
-  const html = await axios.get(fullLink);
-  const $ = cheerio.load(html.data);
-  const tables = $("table");
-
-  tables.each((i, table) => {
-    if (i === 1) {
-      const text = $(table).text();
-
-      let cleanedText = text.replace(/\s+/g, " ");
-      cleanedText = cleanedText.replace(/\.([a-zA-Z])/g, ". $1");
-
-      const date = cleanedText.match(/([A-Z][a-z]+ [0-9]{4})/);
-      let dateStr = "";
-      let textWithoutDate = "";
-
-      if (date) {
-        dateStr = date[0];
-        textWithoutDate = cleanedText.replace(date[0], "");
-      }
-
-      let essayText = textWithoutDate.replace(/\n/g, " ");
-      let thanksTo = "";
-
-      const split = essayText.split(". ").filter((s) => s);
-      const lastSentence = split[split.length - 1];
-
-      if (lastSentence && lastSentence.includes("Thanks to")) {
-        const thanksToSplit = lastSentence.split("Thanks to");
-
-        if (thanksToSplit[1].trim()[thanksToSplit[1].trim().length - 1] === ".") {
-          thanksTo = "Thanks to " + thanksToSplit[1].trim();
-        } else {
-          thanksTo = "Thanks to " + thanksToSplit[1].trim() + ".";
-        }
-
-        essayText = essayText.replace(thanksTo, "");
-      }
-
-      const trimmedContent = essayText.trim();
-
-      essay = {
-        title,
-        url: fullLink,
-        date: dateStr,
-        thanks: thanksTo.trim(),
-        content: trimmedContent,
-        length: trimmedContent.length,
-        tokens: encode(trimmedContent).length,
-        chunks: []
-      };
-    }
-  });
-
+  const trimmedContent = thread.trim();
+  essay = {
+    twitter_handle: tweeter,
+    url: url,
+    date: date,
+    content: trimmedContent,
+    length: trimmedContent.length,
+    tokens: encode(trimmedContent).length,
+    chunks: []
+  };
   return essay;
 };
 
-const chunkEssay = async (essay: PGEssay) => {
-  const { title, url, date, thanks, content, ...chunklessSection } = essay;
+const chunkEssay = async (essay: ThreadEssay) => {
+  const { twitter_handle, url, date, content, ...chunklessSection } = essay;
 
   let essayTextChunks = [];
 
@@ -141,11 +70,10 @@ const chunkEssay = async (essay: PGEssay) => {
   const essayChunks = essayTextChunks.map((text) => {
     const trimmedText = text.trim();
 
-    const chunk: PGChunk = {
-      essay_title: title,
+    const chunk: ThreadChunk = {
+      twitter_handle: twitter_handle,
       essay_url: url,
       essay_date: date,
-      essay_thanks: thanks,
       content: trimmedText,
       content_length: trimmedText.length,
       content_tokens: encode(trimmedText).length,
@@ -170,7 +98,7 @@ const chunkEssay = async (essay: PGEssay) => {
     }
   }
 
-  const chunkedSection: PGEssay = {
+  const chunkedSection: ThreadEssay = {
     ...essay,
     chunks: essayChunks
   };
@@ -179,24 +107,24 @@ const chunkEssay = async (essay: PGEssay) => {
 };
 
 (async () => {
-  const links = await getLinks();
+  const threads = await getThreads();
 
   let essays = [];
 
-  for (let i = 0; i < links.length; i++) {
-    const essay = await getEssay(links[i]);
+  for (let i = 0; i < threads.length; i++) {
+    const essay = await getEssay(threads[i]);
     const chunkedEssay = await chunkEssay(essay);
     essays.push(chunkedEssay);
   }
 
-  const json: PGJSON = {
+  const json: TweeterJSON = {
     current_date: "2023-03-01",
-    author: "Paul Graham",
-    url: "http://www.paulgraham.com/articles.html",
+    author: "Julie Zhuo",
+    url: "https://twitter.com/joulee",
     length: essays.reduce((acc, essay) => acc + essay.length, 0),
     tokens: essays.reduce((acc, essay) => acc + essay.tokens, 0),
     essays
   };
 
-  fs.writeFileSync("scripts/pg.json", JSON.stringify(json));
+  fs.writeFileSync("scripts/julie-book.json", JSON.stringify(json));
 })();

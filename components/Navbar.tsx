@@ -1,30 +1,34 @@
 import { IconExternalLink } from "@tabler/icons-react";
 import { FC } from "react";
+import styles from '../styles/Home.module.css';
+import Link from "next/link";
 
-export const Navbar: FC = () => {
+
+interface NavbarProps {
+  rightLink: {
+    href: string;
+    label: string;
+  };
+}
+
+export const Navbar: FC<NavbarProps> = ({ rightLink }) => {
   return (
     <div className="flex h-[60px] border-b border-gray-300 py-2 px-8 items-center justify-between">
       <div className="font-bold text-2xl flex items-center">
-        <a
-          className="hover:opacity-50"
-          href="https://paul-graham-gpt.vercel.app"
-        >
-          Paul Graham GPT
-        </a>
+        <Link className="hover:opacity-50" href="/">
+          Weave <span className={styles.highlight}>Threads GPT</span>
+        </Link>
       </div>
       <div>
         <a
-          className="flex items-center hover:opacity-50"
-          href="http://www.paulgraham.com/articles.html"
+          className="flex font-bold items-center hover:opacity-50"
+          href={rightLink.href}
           target="_blank"
           rel="noreferrer"
         >
-          <div className="hidden sm:flex">PaulGraham.com</div>
+          <div className="hidden sm:flex">{rightLink.label}</div>
 
-          <IconExternalLink
-            className="ml-1"
-            size={20}
-          />
+          <IconExternalLink className="ml-1" size={20} />
         </a>
       </div>
     </div>

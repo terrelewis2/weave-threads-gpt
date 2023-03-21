@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/utils";
+import { Twinkle_Star } from "@next/font/google";
 
 export const config = {
   runtime: "edge"
@@ -6,14 +7,16 @@ export const config = {
 
 const handler = async (req: Request): Promise<Response> => {
   try {
-    const { query, apiKey, matches } = (await req.json()) as {
+    const { query, apiKey, matches , twitterHandle} = (await req.json()) as {
       query: string;
       apiKey: string;
       matches: number;
+      twitterHandle: string;
     };
 
     const input = query.replace(/\n/g, " ");
-
+    const twitter_handle = twitterHandle;
+    
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       headers: {
         "Content-Type": "application/json",
@@ -29,10 +32,11 @@ const handler = async (req: Request): Promise<Response> => {
     const json = await res.json();
     const embedding = json.data[0].embedding;
 
-    const { data: chunks, error } = await supabaseAdmin.rpc("pg_search", {
+    const { data: chunks, error } = await supabaseAdmin.rpc("tweeter_search", {
       query_embedding: embedding,
       similarity_threshold: 0.01,
-      match_count: matches
+      match_count: matches,
+      twitter_handle: twitter_handle
     });
 
     if (error) {
