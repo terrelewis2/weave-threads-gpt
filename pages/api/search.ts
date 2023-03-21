@@ -16,7 +16,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     const input = query.replace(/\n/g, " ");
     const twitter_handle = twitterHandle;
-    
+
     const res = await fetch("https://api.openai.com/v1/embeddings", {
       headers: {
         "Content-Type": "application/json",
@@ -36,7 +36,7 @@ const handler = async (req: Request): Promise<Response> => {
       query_embedding: embedding,
       similarity_threshold: 0.01,
       match_count: matches,
-      twitter_handle: twitter_handle
+      input_handle: twitter_handle
     });
 
     if (error) {

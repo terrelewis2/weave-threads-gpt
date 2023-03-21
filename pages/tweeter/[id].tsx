@@ -13,8 +13,6 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const apiKey = process.env.OPENAI_API_KEY || ""; // get the value of the API_KEY variable, or set it to an empty string if it's not defined
-  console.log(apiKey);
-
   const [query, setQuery] = useState<string>("");
   const [chunks, setChunks] = useState<ThreadChunk[]>([]);
   const [answer, setAnswer] = useState<string>("");
@@ -53,7 +51,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ query, apiKey, matches: matchCount, id})
+      body: JSON.stringify({ query, apiKey, matches: matchCount, twitterHandle:id})
     });
 
     if (!searchResponse.ok) {
@@ -93,7 +91,7 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ query, apiKey, matches: matchCount, id})
+      body: JSON.stringify({ query, apiKey, matches: matchCount, twitterHandle:id})
     });
 
     if (!searchResponse.ok) {

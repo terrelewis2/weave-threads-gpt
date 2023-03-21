@@ -44,7 +44,7 @@ begin
     tweeter.content_tokens,
     1 - (tweeter.embedding <=> query_embedding) as similarity
   from tweeter
-  where tweeter.twitter_handle <> input_handle
+  where tweeter.twitter_handle = input_handle
   and 1 - (tweeter.embedding <=> query_embedding) > similarity_threshold
   order by tweeter.embedding <=> query_embedding
   limit match_count;
