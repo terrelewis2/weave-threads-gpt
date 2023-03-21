@@ -28,7 +28,7 @@ export default function Home() {
   const { id, placeholderQuestion } = router.query;
   const placeholder = Array.isArray(placeholderQuestion)
   ? placeholderQuestion.join(', ') // Join the array elements into a single string
-  : placeholderQuestion || 'Enter text here'; // Use a default value if the variable is undefined
+  : placeholderQuestion || 'Ask a question'; // Use a default value if the variable is undefined
 
 
 
