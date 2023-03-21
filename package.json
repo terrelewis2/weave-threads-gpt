@@ -1,5 +1,5 @@
 {
-  "name": "paul-graham-gpt",
+  "name": "weave-threads-gpt",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "scrape": "tsx scripts/scrape.ts",
+    "format": "tsx scripts/format.ts",
     "embed": "tsx scripts/embed.ts"
   },
   "dependencies": {
