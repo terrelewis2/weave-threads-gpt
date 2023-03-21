@@ -25,7 +25,7 @@ export const Footer: FC = () => {
           target="_blank"
           rel="noreferrer"
         >
-          <span className={styles.highlightBold}>Mckay Wrigley's</span>
+          <span className={styles.highlightBold}>Mckay Wrigley&apos;s</span>
         </a>
         &nbsp;project,
         <a

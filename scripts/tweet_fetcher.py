@@ -6,10 +6,10 @@ import pytz
 
 
 # Authenticate with your own Twitter API credentials
-consumer_key = "balUy5XVSl9OqZDJAl4aIdwFu"
-consumer_secret = "BhsH66kfoRbZ5m7JIrF5Gqe4hKIcydcH6ReidHO4RxBb4cLy0K"
-access_token = "1456375214-iuRymetFdeHM1UKkaKu8oKr1iCAjDgUFiNHDr40"
-access_token_secret = "X4AxmjsUUCQTeidO1XfVwZBgXnJJWNk8rtbZGUEydEIsx"
+consumer_key = "YOUR_CONSUMER_KEY"
+consumer_secret = "YOUR_CONSUMER_SECRET"
+access_token = "YOUR_ACCESS_TOKEN"
+access_token_secret = "YOUR_ACCESS_TOKEN_SECRET"
 
 # Create an instance of the Tweepy API and authenticate with your credentials
 auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
@@ -17,7 +17,7 @@ auth.set_access_token(access_token, access_token_secret)
 api = tweepy.API(auth)
 
 # Specify the Twitter handle whose tweets you want to fetch
-twitter_handle = "joulee"
+twitter_handle = "TWITTER_HANDLE"
 
 # Number of tweets per page
 tweets_per_page = 200
