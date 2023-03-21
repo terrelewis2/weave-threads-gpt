@@ -58,7 +58,7 @@ export default function Home(): JSX.Element {
           }} className={styles.card}>
           <Image src="/images/greg.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
             <h3>Greg Isenberg &rarr;</h3>
-            <p>Building an online community? Greg&#39;s insights on building online communities will teach you all that there is to know.</p>
+            <p>Building an online community? Greg&#39;s threads will teach you all there is to on building internet communities and products from them.</p>
             <br/>
             <p><b><span className={styles.highlightBold}>109</span> Threads</b></p>
           </Link>
