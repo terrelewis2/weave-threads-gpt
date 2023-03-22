@@ -2,9 +2,10 @@ import { Answer } from "@/components/Answer/Answer";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { ThreadChunk } from "@/types";
-import { IconArrowRight, IconExternalLink, IconSearch } from "@tabler/icons-react";
+import { IconArrowRight, IconBrandTwitter, IconExternalLink, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
 import Head from "next/head";
+import Image from "next/image";
 import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/router';
 
@@ -28,7 +29,7 @@ export default function Home() {
   ? placeholderQuestion.join(', ') // Join the array elements into a single string
   : placeholderQuestion || 'Ask a question'; // Use a default value if the variable is undefined
 
-
+  const imgPath = `/images/${id}.jpeg`;
 
   const rightLink = {
     href: `http://www.twitter.com/${id}`,
@@ -167,7 +168,7 @@ export default function Home() {
     localStorage.removeItem("PG_MODE");
 
     setMatchCount(5);
-    setMode("search");
+    setMode("chat");
   };
 
   useEffect(() => {
@@ -317,15 +318,26 @@ export default function Home() {
                 <Answer text={answer} />
 
                 <div className="mt-6 mb-16">
-                  <div className="font-bold text-2xl">Passages</div>
+                  <div className="font-bold text-2xl">Related Threads</div>
 
                   {chunks.map((chunk, index) => (
                     <div key={index}>
                       <div className="mt-4 border border-zinc-600 rounded-lg p-4">
                         <div className="flex auto">
-                          <div>
-                            <div className="me-4 font-bold text-xl">View Thread</div>
-                            <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
+                            <div className="flex items-center">
+                            <div className="mr-4">
+                              <Image
+                                src={imgPath}
+                                alt="Profile picture"
+                                width={50}
+                                height={50}
+                                style={{ borderRadius: "50%" }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="me-4 font-bold text-xl">View Thread</div>
+                              <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
+                            </div>
                           </div>
                           <a
                             className="hover:opacity-50 ml-2"
@@ -333,7 +345,7 @@ export default function Home() {
                             target="_blank"
                             rel="noreferrer"
                           >
-                            <IconExternalLink 
+                            <IconBrandTwitter
                               color="#1DA1F2"
                             />
                           </a>
@@ -350,10 +362,21 @@ export default function Home() {
                 {chunks.map((chunk, index) => (
                   <div key={index}>
                     <div className="mt-4 border border-zinc-600 rounded-lg p-4">
-                    <div className="flex auto">
-                          <div>
-                            <div className="me-4 font-bold text-xl">View Thread</div>
-                            <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
+                        <div className="flex auto">
+                        <div className="flex items-center">
+                            <div className="mr-4">
+                              <Image
+                                src={imgPath}
+                                alt="Profile picture"
+                                width={50}
+                                height={50}
+                                style={{ borderRadius: "50%" }}
+                              />
+                            </div>
+                            <div className="flex flex-col">
+                              <div className="me-4 font-bold text-xl">View Thread</div>
+                              <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
+                            </div>
                           </div>
                           <a
                             className="hover:opacity-50 ml-2"
@@ -361,8 +384,8 @@ export default function Home() {
                             target="_blank"
                             rel="noreferrer"
                           >
-                            <IconExternalLink 
-                               color="#1DA1F2"
+                            <IconBrandTwitter
+                              color="#1DA1F2"
                             />
                           </a>
                         </div>

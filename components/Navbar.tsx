@@ -1,4 +1,4 @@
-import { IconExternalLink } from "@tabler/icons-react";
+import { IconBrandTwitter } from "@tabler/icons-react";
 import { FC } from "react";
 import styles from '../styles/Home.module.css';
 import Link from "next/link";
@@ -28,7 +28,7 @@ export const Navbar: FC<NavbarProps> = ({ rightLink }) => {
         >
           <div className="hidden sm:flex">{rightLink.label}</div>
 
-          <IconExternalLink className="ml-1" size={20} color="#1DA1F2"/>
+          <IconBrandTwitter className="ml-1" size={20} color="#1DA1F2"/>
         </a>
       </div>
     </div>

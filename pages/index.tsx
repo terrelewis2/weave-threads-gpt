@@ -17,7 +17,7 @@ export default function Home(): JSX.Element {
         </h1>
 
         <p className={styles.description}>
-        Gain knowledge and insights from Twitter Threads of your favourite tweeters
+        Gain knowledge and insights from Twitter threads of your favourite thought leaders.
         </p>
 
         <div className={styles.grid}>
@@ -42,7 +42,7 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"How to share feedback with my manager?"
             },
           }} className={styles.card}>
-          <Image src="/images/julie.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
+          <Image src="/images/joulee.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
             <h3>Julie Zhuo &rarr;</h3>
             <p>As founder at Sundial, former VP design at Meta and author of <b>The Making of a Manager</b>, Julie&#39;s threads capture all her learnings.</p>
             <br/>
@@ -56,7 +56,7 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"How to build an online community?"
             },
           }} className={styles.card}>
-          <Image src="/images/greg.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
+          <Image src="/images/gregisenberg.jpeg" alt="Profile picture" width={100} height={100} className={styles['profile-pic']}/>
             <h3>Greg Isenberg &rarr;</h3>
             <p>Building an online community? Greg&#39;s threads will teach you all there is to on building internet communities and products from them.</p>
             <br/>
@@ -70,7 +70,7 @@ export default function Home(): JSX.Element {
               placeholderQuestion:"How do I move to Europe with a tech job?"
             },
           }} className={styles.card}>
-          <Image src="/images/sooraj.jpeg" alt="Profile picture" width={100} height={100}className={styles['profile-pic']}/>
+          <Image src="/images/soorajchandran_.jpeg" alt="Profile picture" width={100} height={100}className={styles['profile-pic']}/>
             <h3>Sooraj Chandran &rarr;</h3>
             <p>Looking to pursue a tech career in Europe? Sooraj has been there and done that. Learm more from his experiences and insights.</p>
             <br/>
