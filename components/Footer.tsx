@@ -12,7 +12,7 @@ export const Footer: FC = () => {
         Created by
         <a
           className="hover:opacity-50 mx-1"
-          href="https://twitter.com/terrelewis"
+          href="https://twitter.com/terrelewis2"
           target="_blank"
           rel="noreferrer"
         >
