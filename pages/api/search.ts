@@ -1,5 +1,4 @@
 import { supabaseAdmin } from "@/utils";
-import { Twinkle_Star } from "@next/font/google";
 
 export const config = {
   runtime: "edge"

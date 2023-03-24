@@ -39,3 +39,20 @@ export type Thread = {
   tweeter: string;
   status_id: string;
 };
+
+export type Question = {
+  twitter_handle: string;
+  essay_url: string;
+  essay_date: string;
+  question: string;
+};
+
+export type QuestionsResponse = {
+  questions: Question[];
+  hasMore: boolean;
+}
+
+export type Option = {
+  label: string;
+  value: string;
+}

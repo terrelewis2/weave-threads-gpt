@@ -1,29 +1,36 @@
 import { Answer } from "@/components/Answer/Answer";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { ThreadChunk } from "@/types";
-import { IconArrowRight, IconBrandTwitter, IconExternalLink, IconSearch } from "@tabler/icons-react";
+import { AsyncPaginate } from "react-select-async-paginate";
+import { ThreadChunk, Question} from "@/types";
+import { IconArrowRight, IconBrandTwitter, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
 import Head from "next/head";
 import Image from "next/image";
-import { KeyboardEvent, useEffect, useRef, useState } from "react";
+import React, { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from 'next/router';
 
+interface OptionType {
+  value: string;
+  label: string;
+}
 
 export default function Home() {
-  const inputRef = useRef<HTMLInputElement>(null);
-
   const apiKey = process.env.OPENAI_API_KEY || ""; // get the value of the API_KEY variable, or set it to an empty string if it's not defined
   const [query, setQuery] = useState<string>("");
+
   const [chunks, setChunks] = useState<ThreadChunk[]>([]);
   const [answer, setAnswer] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [selectedItem, setSelectedItem] = useState<OptionType>({ value: "", label: "" });
+
+
+  const LIMIT = 20;
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const [mode, setMode] = useState<"search" | "chat">("chat");
   const [matchCount, setMatchCount] = useState<number>(5);
   const router = useRouter();
-  const data = router.query;
   const { id, placeholderQuestion } = router.query;
   const placeholder = Array.isArray(placeholderQuestion)
   ? placeholderQuestion.join(', ') // Join the array elements into a single string
@@ -31,10 +38,32 @@ export default function Home() {
 
   const imgPath = `/images/${id}.jpeg`;
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const rightLink = {
     href: `http://www.twitter.com/${id}`,
     label: `Checkout @${id} on Twitter`,
   };
+
+  async function loadOptions(_search: string, loadedOptions: unknown[]) {
+    const start = loadedOptions.length;
+    const end = start + LIMIT;
+    console.log("start", start, "end", end);
+    const response = await fetch("/api/fetchQuestions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ twitterHandle: id, from: start, to: end })
+        });
+
+    const json = await response.json();
+  
+    return {
+      options: json.questions.map((item: Question) => ({ value: item.question, label: item.question })),
+      hasMore: json.hasMore
+    };
+  }
 
   const handleSearch = async () => {
     if (!query) {
@@ -69,6 +98,14 @@ export default function Home() {
     inputRef.current?.focus();
 
     return results;
+  };
+
+  const handleItemSelect = (item:OptionType) => {
+    console.log("Selected item:", item);
+
+    setSelectedItem(item);
+    setQuery(item.label); // Or use item.value if you want to show the selected value
+    inputRef?.current?.focus(); // To keep focus on the input field
   };
 
   const handleAnswer = async () => {
@@ -286,6 +323,14 @@ export default function Home() {
                     className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-[#1da1f2] p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10 text-white"
                   />
                 </button>
+
+                <AsyncPaginate 
+                  loadOptions={loadOptions} 
+                  placeholder="Pick a question"
+                  className="mt-8"
+                  onChange={handleItemSelect} // Add onSelect prop to AsyncPaginate component
+                  />
+
               </div>
 
             {loading ? (

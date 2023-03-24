@@ -13,6 +13,15 @@ create table tweeter (
   embedding vector (1536)
 );
 
+-- RUN to create questions table
+create table questions (
+  id bigserial primary key,
+  twitter_handle text,
+  essay_url text,
+  essay_date text,
+  question text
+);
+
 -- RUN 3rd after running the scripts
 create or replace function tweeter_search (
   query_embedding vector(1536),
