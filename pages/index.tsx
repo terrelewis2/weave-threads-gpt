@@ -100,7 +100,7 @@ export default function Home(): JSX.Element {
           }} className={styles.card}>
           <Image src="/images/wes_kao.jpeg" alt="Profile picture" width={100} height={100}className={styles['profile-pic']}/>
             <h3>Wes Kao &rarr;</h3>
-            <p>As co-founder of Maven, Wes has tons of insights to share from marketing, online courses, rigorous thinking and much more.</p>
+            <p>As co-founder of Maven, Wes has tons of insights to share on marketing, online courses, rigorous thinking and much more.</p>
             <br/>
             <p><b><span className={styles.highlightBold}>82</span> Threads</b></p>
           </Link>
