@@ -328,6 +328,7 @@ export default function Home() {
                 </button>
 
                 <AsyncPaginate 
+                  isSearchable={false}
                   loadOptions={loadOptions} 
                   placeholder="Pick a question"
                   className="mt-8"

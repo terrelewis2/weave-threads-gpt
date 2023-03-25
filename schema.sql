@@ -61,6 +61,8 @@ end;
 $$;
 
 -- RUN 4th
+-- the code creates an index on the "tweeter" dataset using the IVFFlat method to enable efficient similarity search based on cosine similarity for embedding vectors.
+-- The index is configured to use 100 lists or partitions to speed up search times.
 create index on tweeter 
 using ivfflat (embedding vector_cosine_ops)
 with (lists = 100);
