@@ -12,7 +12,7 @@ const generateEmbeddings = async (essays: ThreadEssay[]) => {
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-  for (let i = 79; i < essays.length; i++) {
+  for (let i = 0; i < essays.length; i++) {
     const section = essays[i];
 
     for (let j = 0; j < section.chunks.length; j++) {
@@ -52,7 +52,7 @@ const generateEmbeddings = async (essays: ThreadEssay[]) => {
 };
 
 (async () => {
-  const book: TweeterJSON = JSON.parse(fs.readFileSync("scripts/julie-book.json", "utf8"));
+  const book: TweeterJSON = JSON.parse(fs.readFileSync("scripts/wes-book.json", "utf8"));
 
   await generateEmbeddings(book.essays);
 })();

@@ -77,6 +77,34 @@ export default function Home(): JSX.Element {
             <p><b><span className={styles.highlightBold}>61</span> Threads</b></p>
           </Link>
 
+          <Link href={{
+            pathname: "/tweeter/AliAbdaal",
+            query:{
+              id:"AliAbdaal",
+              placeholderQuestion:"How can you find your niche as a creator on YouTube?"
+            },
+          }} className={styles.card}>
+          <Image src="/images/AliAbdaal.jpeg" alt="Profile picture" width={100} height={100}className={styles['profile-pic']}/>
+            <h3>Ali Abdaal &rarr;</h3>
+            <p>Learn all there is to productivity, personal development and life as a creatorpreneur from the Doctor turned YouTuber.</p>
+            <br/>
+            <p><b><span className={styles.highlightBold}>114</span> Threads</b></p>
+          </Link>
+
+          <Link href={{
+            pathname: "/tweeter/wes_kao",
+            query:{
+              id:"wes_kao",
+              placeholderQuestion:" What are some effective ways to market a course without being salesy?"
+            },
+          }} className={styles.card}>
+          <Image src="/images/wes_kao.jpeg" alt="Profile picture" width={100} height={100}className={styles['profile-pic']}/>
+            <h3>Wes Kao &rarr;</h3>
+            <p>As co-founder of Maven, Wes has tons of insights to share from marketing, online courses, rigorous thinking and much more.</p>
+            <br/>
+            <p><b><span className={styles.highlightBold}>82</span> Threads</b></p>
+          </Link>
+
         </div>
       </main>
       <footer>

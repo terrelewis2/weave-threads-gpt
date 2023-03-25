@@ -91,7 +91,7 @@ const generateQuestions = async (essays: ThreadEssay[]) => {
 };
 
 (async () => {
-  const book: TweeterJSON = JSON.parse(fs.readFileSync("scripts/greg-book.json", "utf8"));
+  const book: TweeterJSON = JSON.parse(fs.readFileSync("scripts/wes-book.json", "utf8"));
 
   await generateQuestions(book.essays);
 })();

@@ -98,7 +98,7 @@ export default function Home() {
 
     setLoading(false);
 
-    inputRef.current?.focus();
+    //inputRef.current?.focus();
 
     return results;
   };
@@ -182,7 +182,7 @@ export default function Home() {
       setAnswer((prev) => prev + chunkValue);
     }
 
-    inputRef.current?.focus();
+    //inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

@@ -5,7 +5,7 @@ import { encode } from "gpt-3-encoder";
 const CHUNK_SIZE = 200;
 
 const getThreads = async () => {
-    const jsonString = fs.readFileSync("/Users/terrellewis/Desktop/weave-threads-gpt/scripts/joulee-threads.json", 'utf8');
+    const jsonString = fs.readFileSync("/Users/terrellewis/Desktop/weave-threads-gpt/scripts/wes_kao-threads.json", 'utf8');
     const data = JSON.parse(jsonString);
     return data.threads;
 };
@@ -119,12 +119,12 @@ const chunkEssay = async (essay: ThreadEssay) => {
 
   const json: TweeterJSON = {
     current_date: "2023-03-01",
-    author: "Julie Zhuo",
-    url: "https://twitter.com/joulee",
+    author: "Wes Kao",
+    url: "https://twitter.com/wes_kao",
     length: essays.reduce((acc, essay) => acc + essay.length, 0),
     tokens: essays.reduce((acc, essay) => acc + essay.tokens, 0),
     essays
   };
 
-  fs.writeFileSync("scripts/julie-book.json", JSON.stringify(json));
+  fs.writeFileSync("scripts/wes-book.json", JSON.stringify(json));
 })();

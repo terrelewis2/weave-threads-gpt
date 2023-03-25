@@ -47,7 +47,7 @@ print(f"All tweets fetched :{len(all_tweets)}")
 
 # Loop through each tweet and print its details
 for tweet in all_tweets:
-    if tweet.in_reply_to_screen_name is not None and tweet.in_reply_to_screen_name == twitter_handle and tweet.full_text[0] != "@" and tweet.id_str not in processed_tweet_ids:
+    if tweet.in_reply_to_screen_name is not None and tweet.in_reply_to_screen_name == twitter_handle and (tweet.full_text[0] != "@" or tweet.display_text_range[0] != 0) and tweet.id_str not in processed_tweet_ids:
     	#This is a reply to a tweet from the same handle
         processed_tweet_ids.append(tweet.id_str)
         thread = tweet.full_text
@@ -58,7 +58,7 @@ for tweet in all_tweets:
             print(f"Error getting parent tweet for tweet id {tweet.id_str}: {e}")
             continue
         #loop until you reach the first tweet of the thread
-        while(parentTweet.in_reply_to_screen_name is not None):
+        while(parentTweet.in_reply_to_status_id_str is not None):
         	tweet = parentTweet
         	processed_tweet_ids.append(tweet.id_str)
         	thread = parentTweet.full_text +'\n'+ thread
@@ -68,7 +68,8 @@ for tweet in all_tweets:
         		print(f"Error getting parent tweet for tweet id {tweet.id_str}: {e}")
         		break
         if parentTweet.id_str in processed_tweet_ids:
-        	continue
+            print("Parent tweet already processed")
+            continue
         else:
         	processed_tweet_ids.append(parentTweet.id_str)
         	thread = parentTweet.full_text +'\n'+ thread
