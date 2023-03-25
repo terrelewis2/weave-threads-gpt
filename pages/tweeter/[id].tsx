@@ -1,7 +1,7 @@
 import { Answer } from "@/components/Answer/Answer";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
-import { AsyncPaginate } from "react-select-async-paginate";
+import { AsyncPaginate, LoadOptions } from "react-select-async-paginate";
 import { ThreadChunk, Question} from "@/types";
 import { IconArrowRight, IconBrandTwitter, IconSearch } from "@tabler/icons-react";
 import endent from "endent";
@@ -45,7 +45,11 @@ export default function Home() {
     label: `Checkout @${id} on Twitter`,
   };
 
-  async function loadOptions(_search: string, loadedOptions: unknown[]) {
+  const loadOptions: LoadOptions<any, any, { page: number }> = async (
+    searchQuery,
+    loadedOptions,
+    
+  ) => {
     const start = loadedOptions.length;
     const end = start + LIMIT;
     console.log("start", start, "end", end);
@@ -54,16 +58,15 @@ export default function Home() {
       headers: {
         "Content-Type": "application/json"
         },
-        body: JSON.stringify({ twitterHandle: id, from: start, to: end })
-        });
-
+      body: JSON.stringify({ twitterHandle: id, from: start, to: end })
+    });
     const json = await response.json();
-  
+
     return {
       options: json.questions.map((item: Question) => ({ value: item.question, label: item.question })),
       hasMore: json.hasMore
     };
-  }
+  };
 
   const handleSearch = async () => {
     if (!query) {
@@ -328,7 +331,7 @@ export default function Home() {
                   loadOptions={loadOptions} 
                   placeholder="Pick a question"
                   className="mt-8"
-                  onChange={handleItemSelect} // Add onSelect prop to AsyncPaginate component
+                  onChange={handleItemSelect}
                   />
 
               </div>
