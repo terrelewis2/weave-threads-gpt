@@ -166,11 +166,10 @@ export default function Home() {
     console.log("Providing fallback questions");
     setDropdownDebug("Using fallback questions (API didn't return results)");
     const fallbackQuestions = [
-      `What does ${id} think about product management?`,
-      `What are ${id}'s tips for career growth?`,
+      `What are ${id}&apos;s tips for career growth?`,
       `How does ${id} approach problem-solving?`,
-      `What's ${id}'s opinion on leadership?`,
-      `What are ${id}'s favorite books or resources?`
+      `What&apos;s ${id}&apos;s opinion on leadership?`,
+      `What are ${id}&apos;s favorite books or resources?`
     ];
     
     return {
@@ -404,8 +403,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Chat with {id}</title>
-        <meta name="description" content={`Chat with ${id}'s Twitter threads using AI.`} />
+        <title>Chat with @{id}&apos;s tweets | ThreadsGPT</title>
+        <meta name="description" content={`Chat with ${id}&apos;s Twitter threads using AI.`} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/weave.ico" />
       </Head>
@@ -419,7 +418,7 @@ export default function Home() {
             <div className="w-24 h-24 relative rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg">
               <Image 
                 src={imgPath} 
-                alt={`${id}'s profile`} 
+                alt={`${id}&apos;s profile`} 
                 fill 
                 className="object-cover" 
                 sizes="(max-width: 768px) 96px, 96px"
@@ -519,7 +518,7 @@ export default function Home() {
             
             <div className="mt-2 flex items-center justify-center sm:justify-start text-xs text-gray-500 dark:text-gray-400">
               <IconBulb size={14} className="mr-1 text-yellow-500" />
-              <span>Try asking specific questions about {id}'s expertise or opinions</span>
+              <span>Try asking specific questions about {id}&apos;s expertise or opinions</span>
             </div>
           </div>
 
@@ -612,7 +611,7 @@ export default function Home() {
                             <div className="mr-3 flex-shrink-0">
                               <Image 
                                 src={imgPath} 
-                                alt={`${id}'s profile`} 
+                                alt={`${id}&apos;s profile`} 
                                 width={48} 
                                 height={48} 
                                 className="rounded-full"
