@@ -1,61 +1,87 @@
-import { IconBrandGithub, IconBrandTwitter } from "@tabler/icons-react";
+import { IconBrandGithub, IconBrandTwitter, IconHeart } from "@tabler/icons-react";
 import { FC } from "react";
-import styles from '../styles/Home.module.css';
-
+import Link from "next/link";
+import Image from "next/image";
 
 export const Footer: FC = () => {
   return (
-    <div className="flex h-[50px] font-bold border-t border-gray-300 py-2 px-8 items-center sm:justify-between justify-center">
-      <div className="hidden sm:flex"></div>
-
-      <div className="hidden sm:flex text-sm">
-        Created by
-        <a
-          className="hover:opacity-50 mx-1"
-          href="https://twitter.com/terrelewis2"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span className={styles.highlightBold}>Terrel Lewis.</span>
-        </a>
-        Inspired from 
-        <a
-          className="hover:opacity-50 ml-1"
-          href="https://twitter.com/mckaywrigley"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span className={styles.highlightBold}>Mckay Wrigley&apos;s</span>
-        </a>
-        &nbsp;project,
-        <a
-          className="hover:opacity-50 ml-1"
-          href="https://github.com/mckaywrigley/paul-graham-gpt"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span className={styles.highlightBold}>PaulGrahamGPT</span>
-        </a>
+    <footer className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+      <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Logo and description */}
+          <div className="col-span-1">
+            <Link href="/" className="flex items-center">
+              <Image 
+                src="/weave.ico" 
+                alt="Logo" 
+                width={32} 
+                height={32} 
+                className="mr-2"
+              />
+              <h2 className="text-xl font-bold">
+                Weave <span className="gradient-text">Threads</span> GPT
+              </h2>
+            </Link>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">
+              GPT-powered search and chat for Twitter threads from your favorite thought leaders.
+            </p>
+          </div>
+          
+          {/* Links */}
+          <div className="col-span-1 md:col-span-2 grid grid-cols-2 gap-8">
+            <div>
+              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Resources
+              </h3>
+              <ul className="mt-4 space-y-4">
+                <li>
+                  <a href="https://github.com/terrelewis2/weave-threads-gpt" className="text-base text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                    GitHub Repository
+                  </a>
+                </li>
+                <li>
+                  <a href="https://platform.openai.com/" className="text-base text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                    OpenAI API
+                  </a>
+                </li>
+                <li>
+                  <a href="https://supabase.com/" className="text-base text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400">
+                    Supabase
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Connect
+              </h3>
+              <ul className="mt-4 space-y-4">
+                <li>
+                  <a href="https://twitter.com/terrelewis2" className="text-base text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                    <IconBrandTwitter size={20} className="mr-2" />
+                    Twitter
+                  </a>
+                </li>
+                <li>
+                  <a href="https://github.com/terrelewis2" className="text-base text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400 flex items-center">
+                    <IconBrandGithub size={20} className="mr-2" />
+                    GitHub
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        
+        <div className="mt-12 border-t border-gray-200 dark:border-gray-800 pt-8 flex flex-col items-center">
+          <p className="text-base text-gray-500 dark:text-gray-400 text-center">
+            Inspired by <a href="https://github.com/mckaywrigley/paul-graham-gpt" className="hover:text-primary-600 dark:hover:text-primary-400 font-medium">PaulGrahamGPT</a> by <a href="https://twitter.com/mckaywrigley" className="hover:text-primary-600 dark:hover:text-primary-400 font-medium">Mckay Wrigley</a>
+          </p>
+          <p className="mt-4 text-base text-gray-500 dark:text-gray-400 flex items-center">
+            Made with <IconHeart size={16} className="mx-1 text-red-500" /> by <a href="https://twitter.com/terrelewis2" className="ml-1 hover:text-primary-600 dark:hover:text-primary-400 font-medium">Terrel Lewis</a>
+          </p>
+        </div>
       </div>
-
-      <div className="flex space-x-4">
-        <a
-          className="flex items-center hover:opacity-50"
-          href="https://twitter.com/terrelewis2"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconBrandTwitter size={24} />
-        </a>
-        <a
-          className="flex items-center hover:opacity-50"
-          href="https://github.com/mckaywrigley/paul-graham-gpt"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <IconBrandGithub size={24} />
-        </a>
-      </div>
-    </div>
+    </footer>
   );
 };

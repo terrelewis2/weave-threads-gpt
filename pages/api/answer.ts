@@ -11,12 +11,35 @@ const handler = async (req: Request): Promise<Response> => {
       apiKey: string;
     };
 
-    const stream = await OpenAIStream(prompt, apiKey);
+    if (!prompt || !apiKey) {
+      return new Response(
+        JSON.stringify({ error: "Missing required parameters" }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      );
+    }
 
-    return new Response(stream);
+    try {
+      const stream = await OpenAIStream(prompt, apiKey);
+      return new Response(stream, {
+        headers: {
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache",
+          "Connection": "keep-alive",
+        }
+      });
+    } catch (error: any) {
+      console.error("OpenAI Stream Error:", error.message);
+      return new Response(
+        JSON.stringify({ error: "Failed to generate response" }), 
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
+    }
   } catch (error) {
-    console.error(error);
-    return new Response("Error", { status: 500 });
+    console.error("Request Parsing Error:", error);
+    return new Response(
+      JSON.stringify({ error: "Invalid request format" }),
+      { status: 400, headers: { "Content-Type": "application/json" } }
+    );
   }
 };
 

@@ -11,11 +11,11 @@ export const OpenAIStream = async (prompt: string, apiKey: string) => {
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`
+      Authorization: `Bearer ${apiKey}`,
     },
     method: "POST",
     body: JSON.stringify({
-      model: OpenAIModel.DAVINCI_TURBO,
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -49,9 +49,11 @@ export const OpenAIStream = async (prompt: string, apiKey: string) => {
 
           try {
             const json = JSON.parse(data);
-            const text = json.choices[0].delta.content;
-            const queue = encoder.encode(text);
-            controller.enqueue(queue);
+            const text = json.choices[0].delta?.content || "";
+            if (text) {
+              const queue = encoder.encode(text);
+              controller.enqueue(queue);
+            }
           } catch (e) {
             controller.error(e);
           }

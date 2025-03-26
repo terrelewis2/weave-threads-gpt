@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import { AsyncPaginate, LoadOptions } from "react-select-async-paginate";
 import { ThreadChunk, Question} from "@/types";
-import { IconArrowRight, IconBrandTwitter, IconSearch } from "@tabler/icons-react";
+import { IconArrowRight, IconBrandTwitter, IconSearch, IconMessageCircle, IconChevronDown, IconBulb, IconX, IconListSearch } from "@tabler/icons-react";
 import endent from "endent";
 import Head from "next/head";
 import Image from "next/image";
@@ -24,17 +24,15 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedItem, setSelectedItem] = useState<OptionType>({ value: "", label: "" });
 
-
   const LIMIT = 20;
 
   const [showSettings, setShowSettings] = useState<boolean>(false);
-  const [mode, setMode] = useState<"search" | "chat">("chat");
   const [matchCount, setMatchCount] = useState<number>(5);
   const router = useRouter();
   const { id, placeholderQuestion } = router.query;
   const placeholder = Array.isArray(placeholderQuestion)
-  ? placeholderQuestion.join(', ') // Join the array elements into a single string
-  : placeholderQuestion || 'Ask a question'; // Use a default value if the variable is undefined
+    ? placeholderQuestion.join(', ')
+    : placeholderQuestion || 'Ask a question';
 
   const imgPath = `/images/${id}.jpeg`;
 
@@ -45,78 +43,155 @@ export default function Home() {
     label: `Checkout @${id} on Twitter`,
   };
 
+  // Add state for dropdown debugging
+  const [dropdownDebug, setDropdownDebug] = useState<string>("");
+  const [dropdownKey, setDropdownKey] = useState(0);
+  // Add state to store and display the last set of options
+  const [lastFetchedOptions, setLastFetchedOptions] = useState<OptionType[]>([]);
+  
+  // Enhanced refresh function to reset debug message
+  const refreshQuestionDropdown = () => {
+    console.log("Manually refreshing question dropdown");
+    setDropdownDebug("Refreshing questions...");
+    setLastFetchedOptions([]); // Clear the last fetched options
+    setDropdownKey(prev => prev + 1);
+  };
+
+  // Improved loadOptions function to debug and track options
   const loadOptions: LoadOptions<any, any, { page: number }> = async (
     searchQuery,
     loadedOptions,
-    
+    additional
   ) => {
-    const start = loadedOptions.length;
-    const end = start + LIMIT;
-    console.log("start", start, "end", end);
-    const response = await fetch("/api/fetchQuestions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
+    const page = additional?.page || 0;
+    
+    try {
+      const start = loadedOptions.length;
+      const end = start + LIMIT - 1; // Adjust to be inclusive range
+      console.log("Fetching questions:", { twitterHandle: id, from: start, to: end });
+      
+      // Set a debug message in the UI
+      setDropdownDebug(`Fetching questions for @${id}...`);
+      
+      const response = await fetch("/api/fetchQuestions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
         },
-      body: JSON.stringify({ twitterHandle: id, from: start, to: end })
-    });
-    const json = await response.json();
+        body: JSON.stringify({ twitterHandle: id, from: start, to: end })
+      });
 
+      if (!response.ok) {
+        console.error("Error fetching questions:", response.statusText);
+        setDropdownDebug(`Error: ${response.status} ${response.statusText}`);
+        // Provide fallback questions if API fails
+        if (page === 0) {
+          return provideFallbackQuestions();
+        }
+        return {
+          options: [],
+          hasMore: false,
+          additional: { page: page + 1 }
+        };
+      }
+
+      const json = await response.json();
+      console.log("Received questions:", json);
+      
+      if (!json.questions || !Array.isArray(json.questions)) {
+        console.error("Invalid question data format:", json);
+        setDropdownDebug("Error: Invalid data format received");
+        // Provide fallback questions if data format is invalid
+        if (page === 0) {
+          return provideFallbackQuestions();
+        }
+        return {
+          options: [],
+          hasMore: false,
+          additional: { page: page + 1 }
+        };
+      }
+
+      // Map questions to options format with proper debugging
+      const options = json.questions.map((item: any) => {
+        const questionText = typeof item === 'object' ? (item.question || `Question ${item.id}`) : item;
+        const option = { 
+          value: typeof item === 'object' ? (item.id || questionText) : item,
+          label: questionText
+        };
+        console.log("Created option:", option);
+        return option;
+      });
+
+      // Store the options for display in debug panel
+      if (options.length > 0) {
+        setLastFetchedOptions(options);
+      }
+      
+      // Set success message with more detail
+      const questionCount = options.length;
+      const debugMessage = questionCount > 0 
+        ? `Found ${questionCount} suggested questions. First question: "${options[0]?.label?.substring(0, 30)}${options[0]?.label?.length > 30 ? '...' : ''}"` 
+        : "No questions found in the API response";
+      setDropdownDebug(debugMessage);
+      
+      // If no questions found, provide fallback questions
+      if (options.length === 0 && page === 0) {
+        return provideFallbackQuestions();
+      }
+      
+      console.log(`Returning ${options.length} options, hasMore: ${!!json.hasMore}`);
+      return {
+        options,
+        hasMore: !!json.hasMore,
+        additional: { page: page + 1 }
+      };
+    } catch (error) {
+      console.error("Error in loadOptions:", error);
+      setDropdownDebug(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      // Provide fallback questions if there's an error
+      if (page === 0) {
+        return provideFallbackQuestions();
+      }
+      return {
+        options: [],
+        hasMore: false,
+        additional: { page: 0 }
+      };
+    }
+  };
+
+  // Helper function to provide fallback questions
+  const provideFallbackQuestions = () => {
+    console.log("Providing fallback questions");
+    setDropdownDebug("Using fallback questions (API didn't return results)");
+    const fallbackQuestions = [
+      `What does ${id} think about product management?`,
+      `What are ${id}'s tips for career growth?`,
+      `How does ${id} approach problem-solving?`,
+      `What's ${id}'s opinion on leadership?`,
+      `What are ${id}'s favorite books or resources?`
+    ];
+    
     return {
-      options: json.questions.map((item: Question) => ({ value: item.question, label: item.question })),
-      hasMore: json.hasMore
+      options: fallbackQuestions.map((q, i) => ({ value: `fallback-${i}`, label: q })),
+      hasMore: false,
+      additional: { page: 1 }
     };
   };
 
-  const handleSearch = async () => {
-    if (!query) {
-      alert("Please enter a query.");
-      return;
-    }
-
-    setAnswer("");
-    setChunks([]);
-
-    setLoading(true);
-
-    const searchResponse = await fetch("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ query, apiKey, matches: matchCount, twitterHandle:id})
-    });
-
-    if (!searchResponse.ok) {
-      setLoading(false);
-      throw new Error(searchResponse.statusText);
-    }
-
-    const results: ThreadChunk[] = await searchResponse.json();
-
-    setChunks(results);
-
-    setLoading(false);
-
-    //inputRef.current?.focus();
-
-    return results;
-  };
-
-  const handleItemSelect = (item:OptionType) => {
-    console.log("Selected item:", item);
-
+  // Add function to select a question and submit
+  const handleQuestionSelect = (item: OptionType) => {
+    console.log("Selected question:", item);
     setSelectedItem(item);
-    setQuery(item.label); // Or use item.value if you want to show the selected value
+    setQuery(item.label); 
     inputRef?.current?.focus(); // To keep focus on the input field
+    
+    // Optional: Auto-submit the selected question
+    // setTimeout(handleSubmit, 300);
   };
 
-  const handleAnswer = async () => {
-    if (!apiKey) {
-      alert("Please enter an API key.");
-      return;
-    }
-
+  const handleSubmit = async () => {
     if (!query) {
       alert("Please enter a query.");
       return;
@@ -124,91 +199,88 @@ export default function Home() {
 
     setAnswer("");
     setChunks([]);
-
     setLoading(true);
 
-    const searchResponse = await fetch("/api/search", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ query, apiKey, matches: matchCount, twitterHandle:id})
-    });
+    try {
+      // First, get relevant threads with search API
+      const searchResponse = await fetch("/api/search", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query, apiKey, matches: matchCount, twitterHandle: id })
+      });
 
-    if (!searchResponse.ok) {
+      if (!searchResponse.ok) {
+        setLoading(false);
+        throw new Error(searchResponse.statusText);
+      }
+
+      const results: ThreadChunk[] = await searchResponse.json();
+      setChunks(results);
+
+      // Then, get AI-generated answer if we have results
+      if (results.length > 0) {
+        const prompt = endent`
+        Use the following passages to provide an answer to the query: "${query}"
+
+        ${results?.map((d: any) => d.content).join("\n\n")}
+        `;
+
+        const answerResponse = await fetch("/api/answer", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt, apiKey })
+        });
+
+        if (!answerResponse.ok) {
+          setLoading(false);
+          throw new Error(answerResponse.statusText);
+        }
+
+        const data = answerResponse.body;
+
+        if (data) {
+          const reader = data.getReader();
+          const decoder = new TextDecoder();
+          let done = false;
+
+          while (!done) {
+            const { value, done: doneReading } = await reader.read();
+            done = doneReading;
+            const chunkValue = decoder.decode(value);
+            setAnswer((prev) => prev + chunkValue);
+          }
+        }
+      } else {
+        setAnswer("I couldn't find any relevant information in the tweets to answer your question. Please try a different query or check if the Twitter handle has content related to your question.");
+      }
+
       setLoading(false);
-      throw new Error(searchResponse.statusText);
-    }
-
-    const results: ThreadChunk[] = await searchResponse.json();
-
-    setChunks(results);
-
-    const prompt = endent`
-    Use the following passages to provide an answer to the query: "${query}"
-
-    ${results?.map((d: any) => d.content).join("\n\n")}
-    `;
-
-    const answerResponse = await fetch("/api/answer", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ prompt, apiKey })
-    });
-
-    if (!answerResponse.ok) {
+    } catch (error) {
+      console.error("Error processing query:", error);
       setLoading(false);
-      throw new Error(answerResponse.statusText);
+      alert("An error occurred. Please try again.");
     }
-
-    const data = answerResponse.body;
-
-    if (!data) {
-      return;
-    }
-
-    setLoading(false);
-
-    const reader = data.getReader();
-    const decoder = new TextDecoder();
-    let done = false;
-
-    while (!done) {
-      const { value, done: doneReading } = await reader.read();
-      done = doneReading;
-      const chunkValue = decoder.decode(value);
-      setAnswer((prev) => prev + chunkValue);
-    }
-
-    //inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
-      if (mode === "search") {
-        handleSearch();
-      } else {
-        handleAnswer();
-      }
+      handleSubmit();
     }
   };
 
   const handleSave = () => {
     localStorage.setItem("PG_MATCH_COUNT", matchCount.toString());
-    localStorage.setItem("PG_MODE", mode);
-
     setShowSettings(false);
     inputRef.current?.focus();
   };
 
   const handleClear = () => {
     localStorage.removeItem("PG_MATCH_COUNT");
-    localStorage.removeItem("PG_MODE");
-
     setMatchCount(5);
-    setMode("chat");
   };
 
   useEffect(() => {
@@ -221,233 +293,385 @@ export default function Home() {
 
   useEffect(() => {
     const PG_MATCH_COUNT = localStorage.getItem("PG_MATCH_COUNT");
-    const PG_MODE = localStorage.getItem("PG_MODE");
 
     if (PG_MATCH_COUNT) {
       setMatchCount(parseInt(PG_MATCH_COUNT));
     }
 
-    if (PG_MODE) {
-      setMode(PG_MODE as "search" | "chat");
-    }
-
     inputRef.current?.focus();
   }, []);
+
+  // Add function to manually trigger the test API
+  const testFetchQuestionsAPI = async () => {
+    setDropdownDebug("Testing API...");
+    try {
+      console.log("Testing fetchQuestions API...");
+      const response = await fetch("/api/fetchQuestions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          twitterHandle: id, 
+          from: 0, 
+          to: 10 
+        })
+      });
+      
+      if (!response.ok) {
+        console.error("API test failed with status:", response.status);
+        setDropdownDebug(`API Error: ${response.status} ${response.statusText}`);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log("API test result:", data);
+      
+      if (data.questions && data.questions.length > 0) {
+        setLastFetchedOptions(data.questions.map((item: any) => ({
+          value: typeof item === 'object' ? (item.id || item.question) : item,
+          label: typeof item === 'object' ? (item.question || `Question ${item.id}`) : item
+        })));
+        setDropdownDebug(`Success! Found ${data.questions.length} questions.`);
+      } else {
+        setDropdownDebug("API returned successfully but no questions were found.");
+      }
+    } catch (error: any) {
+      console.error("API test error:", error);
+      setDropdownDebug(`API Test Error: ${error?.message || 'Unknown error'}`);
+    }
+  };
+
+  // Add better initialization effect - fetch questions on load
+  useEffect(() => {
+    // Fetch initial questions when component loads
+    if (id) {
+      testFetchQuestionsAPI();
+    }
+  }, [id]);
+
+  // Direct question fetching function
+  const fetchSuggestedQuestions = async () => {
+    setDropdownDebug("Fetching initial suggested questions...");
+    try {
+      const response = await fetch("/api/fetchQuestions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          twitterHandle: id, 
+          from: 0, 
+          to: 20 
+        })
+      });
+      
+      if (!response.ok) {
+        console.error("Failed to fetch initial questions:", response.statusText);
+        setDropdownDebug(`Error: ${response.status} ${response.statusText}`);
+        setLastFetchedOptions(provideFallbackQuestions().options);
+        return;
+      }
+      
+      const data = await response.json();
+      console.log("Initial questions loaded:", data);
+      
+      if (data.questions && Array.isArray(data.questions) && data.questions.length > 0) {
+        const options = data.questions.map((item: any) => {
+          const questionText = typeof item === 'object' ? (item.question || `Question ${item.id}`) : item;
+          return { 
+            value: typeof item === 'object' ? (item.id || questionText) : item,
+            label: questionText
+          };
+        });
+        
+        setLastFetchedOptions(options);
+        setDropdownDebug(`Loaded ${options.length} suggested questions`);
+      } else {
+        setDropdownDebug("No questions found - using fallbacks");
+        setLastFetchedOptions(provideFallbackQuestions().options);
+      }
+    } catch (error) {
+      console.error("Error fetching initial questions:", error);
+      setDropdownDebug(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setLastFetchedOptions(provideFallbackQuestions().options);
+    }
+  };
+  
+  // Add state for dropdown visibility
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   return (
     <>
       <Head>
-        <title>Weave Threads GPT</title>
-        <meta
-          name="description"
-          content={`AI-powered search and chat for Twitter Threads from @${id}`}
-        />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1"
-        />
-        <link
-          rel="icon"
-          href="/weave.ico"
-        />
+        <title>Chat with {id}</title>
+        <meta name="description" content={`Chat with ${id}'s Twitter threads using AI.`} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/weave.ico" />
       </Head>
 
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col min-h-screen bg-gray-50 dark:bg-gray-900">
         <Navbar rightLink={rightLink} />
-        <div className="flex-1 overflow-auto">
-          <div className="mx-auto flex h-full w-full max-w-[750px] flex-col items-center px-3 pt-4 sm:pt-8">
-            <button
-              className="mt-4 flex cursor-pointer items-center space-x-2 rounded-full border border-zinc-600 px-3 py-1 text-sm hover:opacity-50"
-              onClick={() => setShowSettings(!showSettings)}
-            >
-              {showSettings ? "Hide" : "Show"} Settings
-            </button>
 
-            {showSettings && (
-              <div className="w-[340px] sm:w-[400px]">
-                <div>
-                  <div>Mode</div>
-                  <select
-                    className="max-w-[400px] block w-full cursor-pointer rounded-md border border-gray-300 p-2 text-black shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-                    value={mode}
-                    onChange={(e) => setMode(e.target.value as "search" | "chat")}
-                  >
-                    <option value="search">Search</option>
-                    <option value="chat">Chat</option>
-                  </select>
-                </div>
+        <main className="flex-grow container mx-auto px-4 py-8 max-w-5xl">
+          {/* Header section with profile */}
+          <div className="mb-8 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+            <div className="w-24 h-24 relative rounded-full overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg">
+              <Image 
+                src={imgPath} 
+                alt={`${id}'s profile`} 
+                fill 
+                className="object-cover" 
+                sizes="(max-width: 768px) 96px, 96px"
+              />
+            </div>
+            <div className="text-center md:text-left">
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">
+                Chat with <span className="gradient-text">@{id}</span>
+              </h1>
+              <p className="text-gray-600 dark:text-gray-300 mt-2">
+                Ask questions and get answers based on their Twitter threads.
+              </p>
+            </div>
+          </div>
 
-                <div className="mt-2">
-                  <div>Passage Count</div>
-                  <input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={matchCount}
-                    onChange={(e) => setMatchCount(Number(e.target.value))}
-                    className="max-w-[400px] block w-full rounded-md border border-gray-300 p-2 text-black shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 sm:text-sm"
-                  />
-                </div>
-
-                <div className="mt-4 flex space-x-2 justify-center">
-                  <div
-                    className="flex cursor-pointer items-center space-x-2 rounded-full bg-green-500 px-3 py-1 text-sm text-white hover:bg-green-600"
-                    onClick={handleSave}
-                  >
-                    Save
-                  </div>
-
-                  <div
-                    className="flex cursor-pointer items-center space-x-2 rounded-full bg-red-500 px-3 py-1 text-sm text-white hover:bg-red-600"
-                    onClick={handleClear}
-                  >
-                    Clear
-                  </div>
-                </div>
-              </div>
-            )}
-
-              <div className="relative w-full mt-4">
-                <IconSearch className="absolute top-3 w-10 left-1 h-6 rounded-full opacity-50 sm:left-3 sm:top-4 sm:h-8" />
-
-                <input
-                  ref={inputRef}
-                  className="h-12 w-full rounded-full border border-zinc-600 pr-12 pl-11 focus:border-zinc-800 focus:outline-none focus:ring-1 focus:ring-zinc-800 sm:h-16 sm:py-2 sm:pr-16 sm:pl-16 sm:text-lg"
-                  type="text"
-                  placeholder={placeholder}
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
+          {/* Settings button */}
+          <div className="mb-6">
+            <div className="flex items-center justify-end">
+              <button
+                className="flex items-center text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-primary-600 dark:hover:text-primary-400"
+                onClick={() => setShowSettings(!showSettings)}
+              >
+                <span>Settings</span>
+                <IconChevronDown 
+                  size={16} 
+                  className={`ml-1 transform transition-transform duration-200 ${showSettings ? 'rotate-180' : ''}`} 
                 />
+              </button>
+            </div>
 
-                <button>
-                  <IconArrowRight
-                    onClick={mode === "search" ? handleSearch : handleAnswer}
-                    className="absolute right-2 top-2.5 h-7 w-7 rounded-full bg-[#1da1f2] p-1 hover:cursor-pointer hover:bg-blue-600 sm:right-3 sm:top-3 sm:h-10 sm:w-10 text-white"
-                  />
-                </button>
-
-                <AsyncPaginate 
-                  isSearchable={false}
-                  loadOptions={loadOptions} 
-                  placeholder="Pick a question"
-                  className="mt-8"
-                  onChange={handleItemSelect}
-                  />
-
-              </div>
-
-            {loading ? (
-              <div className="mt-6 w-full">
-                {mode === "chat" && (
-                  <>
-                    <div className="font-bold text-2xl">Answer</div>
-                    <div className="animate-pulse mt-2">
-                      <div className="h-4 bg-gray-300 rounded"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                      <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                    </div>
-                  </>
-                )}
-
-                <div className="font-bold text-2xl mt-6">Passages</div>
-                <div className="animate-pulse mt-2">
-                  <div className="h-4 bg-gray-300 rounded"></div>
-                  <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                  <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                  <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                  <div className="h-4 bg-gray-300 rounded mt-2"></div>
-                </div>
-              </div>
-            ) : answer ? (
-              <div className="mt-6 flex h-full w-full max-w-[750px] flex-col px-3 pt-4 sm:pt-8">
-                <div className="font-bold text-2xl mb-2">Answer</div>
-                <Answer text={answer} />
-
-                <div className="mt-6 mb-16">
-                  <div className="font-bold text-2xl">Related Threads</div>
-
-                  {chunks.map((chunk, index) => (
-                    <div key={index}>
-                      <div className="mt-4 border border-zinc-600 rounded-lg p-4">
-                        <div className="flex auto">
-                            <div className="flex items-center">
-                            <div className="mr-4">
-                              <Image
-                                src={imgPath}
-                                alt="Profile picture"
-                                width={50}
-                                height={50}
-                                style={{ borderRadius: "50%" }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="me-4 font-bold text-xl">View Thread</div>
-                              <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
-                            </div>
-                          </div>
-                          <a
-                            className="hover:opacity-50 ml-2"
-                            href={chunk.essay_url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <IconBrandTwitter
-                              color="#1DA1F2"
-                            />
-                          </a>
-                        </div>
-                        <div className="mt-3">{chunk.content}</div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : chunks.length > 0 ? (
-              <div className="mt-6 pb-16">
-                <div className="font-bold text-2xl">Passages</div>
-                {chunks.map((chunk, index) => (
-                  <div key={index}>
-                    <div className="mt-4 border border-zinc-600 rounded-lg p-4">
-                        <div className="flex auto">
-                        <div className="flex items-center">
-                            <div className="mr-4">
-                              <Image
-                                src={imgPath}
-                                alt="Profile picture"
-                                width={50}
-                                height={50}
-                                style={{ borderRadius: "50%" }}
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <div className="me-4 font-bold text-xl">View Thread</div>
-                              <div className="mt-1 font-bold text-sm">{new Date(chunk.essay_date).toLocaleDateString('en-US', { timeZone: 'UTC' })}</div>
-                            </div>
-                          </div>
-                          <a
-                            className="hover:opacity-50 ml-2"
-                            href={chunk.essay_url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            <IconBrandTwitter
-                              color="#1DA1F2"
-                            />
-                          </a>
-                        </div>
-                      <div className="mt-2">{chunk.content}</div>
-                    </div>
+            {/* Settings panel */}
+            {showSettings && (
+              <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                <div className="flex flex-col gap-4">
+                  <div>
+                    <label htmlFor="match-count" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      Number of matches
+                    </label>
+                    <input
+                      id="match-count"
+                      type="number"
+                      min="1"
+                      max="10"
+                      value={matchCount}
+                      onChange={(e) => setMatchCount(Number(e.target.value))}
+                      className="input-modern w-full sm:w-24"
+                    />
+                    <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Number of Twitter thread chunks to search through (1-10)
+                    </p>
                   </div>
-                ))}
+                  <div className="flex gap-2 justify-end">
+                    <button
+                      onClick={handleSave}
+                      className="px-3 py-1 text-sm bg-primary-500 text-white rounded hover:bg-primary-600"
+                    >
+                      Save Settings
+                    </button>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="mt-6 text-center text-lg">{`AI-powered search & chat for threads written by @${id}`}</div>
             )}
           </div>
-        </div>
+
+          {/* Search input */}
+          <div className="relative mb-6">
+            <div className="relative rounded-xl shadow-sm">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <IconMessageCircle size={20} className="text-gray-400 dark:text-gray-500" />
+              </div>
+              <input
+                ref={inputRef}
+                className="input-modern pl-10 pr-14 py-3 text-base sm:text-lg"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={`Ask ${placeholder}`}
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center">
+                {query && (
+                  <button
+                    className="p-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300"
+                    onClick={() => setQuery("")}
+                  >
+                    <IconX size={18} />
+                  </button>
+                )}
+                <button
+                  className={`pr-3 pl-1 flex items-center justify-center text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 disabled:opacity-50 disabled:cursor-not-allowed ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                  onClick={handleSubmit}
+                  disabled={loading || query.length === 0}
+                >
+                  <IconArrowRight size={20} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="mt-2 flex items-center justify-center sm:justify-start text-xs text-gray-500 dark:text-gray-400">
+              <IconBulb size={14} className="mr-1 text-yellow-500" />
+              <span>Try asking specific questions about {id}'s expertise or opinions</span>
+            </div>
+          </div>
+
+          {/* Question recommendations - Clean */}
+          <div className="mt-6 mb-8">
+            <div className="mb-2">
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center">
+                <IconListSearch size={18} className="text-primary-500 dark:text-primary-400 mr-2" />
+                Suggested questions
+              </span>
+            </div>
+            
+            <AsyncPaginate
+              key={dropdownKey}
+              isSearchable={false}
+              loadOptions={loadOptions}
+              placeholder="Pick a question"
+              className="mt-2"
+              onChange={handleQuestionSelect}
+              cacheUniqs={[id, dropdownKey]}
+              additional={{ page: 0 }}
+              defaultOptions
+            />
+          </div>
+
+          {/* Results section */}
+          <div className="mt-8">
+            {loading ? (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-pulse flex flex-col items-center">
+                  <div className="h-8 w-8 rounded-full border-2 border-t-transparent border-primary-500 animate-spin mb-4"></div>
+                  <p className="text-gray-500 dark:text-gray-400">Processing your request...</p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Display answer when available */}
+                {answer && (
+                  <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden mb-8">
+                    <div className="p-5">
+                      <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Answer</h2>
+                      <div className="prose dark:prose-invert max-w-none">
+                        <Answer text={answer} />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Always display related threads when available */}
+                {chunks.length > 0 && (
+                  <div className="space-y-4">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                      Related Tweets
+                    </h2>
+                    <div className="space-y-4">
+                      {chunks.map((chunk, index) => (
+                        <div 
+                          key={index}
+                          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4"
+                        >
+                          <div className="flex items-start">
+                            <div className="mr-3 flex-shrink-0">
+                              <Image 
+                                src={imgPath} 
+                                alt={`${id}'s profile`} 
+                                width={48} 
+                                height={48} 
+                                className="rounded-full"
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center mb-1">
+                                <span className="font-bold text-gray-900 dark:text-white mr-2">@{chunk.twitter_handle}</span>
+                                <span className="text-gray-500 dark:text-gray-400 text-xs">
+                                  {new Date(chunk.essay_date).toLocaleDateString(undefined, { 
+                                    year: 'numeric', 
+                                    month: 'short', 
+                                    day: 'numeric' 
+                                  })}
+                                </span>
+                              </div>
+                              <div className="text-gray-800 dark:text-gray-200 mb-2">
+                                {chunk.content}
+                              </div>
+                              <a 
+                                href={chunk.essay_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center text-blue-500 hover:text-blue-600 text-sm"
+                              >
+                                <IconBrandTwitter size={16} className="mr-1" />
+                                View original thread
+                              </a>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Add CSS variables for styling the select component */}
+          <style jsx global>{`
+            :root {
+              --select-bg: #ffffff;
+              --select-border: #e2e8f0;
+              --select-border-hover: #cbd5e1;
+              --select-text: #1e293b;
+              --select-placeholder: #94a3b8;
+              --select-option-focus: #f1f5f9;
+              --select-option-hover: #f8fafc;
+              --select-menu-bg: #ffffff;
+            }
+            
+            .dark {
+              --select-bg: #1e293b;
+              --select-border: #334155;
+              --select-border-hover: #475569;
+              --select-text: #f1f5f9;
+              --select-placeholder: #64748b;
+              --select-option-focus: #0f172a;
+              --select-option-hover: #1e293b;
+              --select-menu-bg: #0f172a;
+            }
+            
+            .question-select .select__control {
+              border-radius: 0.5rem;
+              min-height: 2.75rem;
+              transition: all 0.2s;
+            }
+            
+            .question-select .select__control--is-focused {
+              border-color: #3b82f6;
+              box-shadow: 0 0 0 1px #3b82f6;
+            }
+            
+            .question-select .select__option {
+              border-radius: 0.25rem;
+              padding: 0.5rem 0.75rem;
+              cursor: pointer;
+              font-size: 0.875rem;
+            }
+            
+            .question-select .select__menu {
+              z-index: 50;
+            }
+          `}</style>
+        </main>
+
         <Footer />
       </div>
     </>

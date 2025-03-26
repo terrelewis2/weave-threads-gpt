@@ -1,5 +1,5 @@
 import "@/styles/globals.css";
-import { Inter } from "@next/font/google";
+import { Inter } from "next/font/google";
 import type { AppProps } from "next/app";
 import { Analytics } from '@vercel/analytics/react';
 
