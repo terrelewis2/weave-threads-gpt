@@ -2,13 +2,14 @@ import { ThreadEssay, TweeterJSON } from "@/types";
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
-import { Configuration, OpenAIApi } from "openai";
+import OpenAI from "openai";
 
 loadEnvConfig("");
 
 const generateEmbeddings = async (essays: ThreadEssay[]) => {
-  const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
-  const openai = new OpenAIApi(configuration);
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -20,12 +21,12 @@ const generateEmbeddings = async (essays: ThreadEssay[]) => {
 
       const { twitter_handle, essay_url, essay_date, content, content_length, content_tokens } = chunk;
 
-      const embeddingResponse = await openai.createEmbedding({
+      const embeddingResponse = await openai.embeddings.create({
         model: "text-embedding-ada-002",
         input: content
       });
 
-      const [{ embedding }] = embeddingResponse.data.data;
+      const embedding = embeddingResponse.data[0].embedding;
 
       const { data, error } = await supabase
         .from("tweeter")

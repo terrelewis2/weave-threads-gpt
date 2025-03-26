@@ -2,13 +2,15 @@ import { ThreadEssay, TweeterJSON, OpenAIModel } from "@/types";
 import { loadEnvConfig } from "@next/env";
 import { createClient } from "@supabase/supabase-js";
 import fs from "fs";
-import { Configuration} from "openai";
+import OpenAI from "openai";
 
 
 loadEnvConfig("");
 
 const generateQuestions = async (essays: ThreadEssay[]) => {
-  const configuration = new Configuration({ apiKey: process.env.OPENAI_API_KEY });
+  const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
 
   const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
@@ -19,7 +21,7 @@ const generateQuestions = async (essays: ThreadEssay[]) => {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${configuration.apiKey}`
+          Authorization: `Bearer ${openai.apiKey}`
         },
         method: "POST",
         body: JSON.stringify({
