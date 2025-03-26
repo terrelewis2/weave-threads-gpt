@@ -542,6 +542,34 @@ export default function Home() {
               cacheUniqs={[id, dropdownKey]}
               additional={{ page: 0 }}
               defaultOptions
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  backgroundColor: 'var(--bg-dropdown, #ffffff)',
+                  borderColor: 'var(--border-dropdown, #e2e8f0)',
+                  color: 'var(--text-dropdown, #1e293b)',
+                }),
+                menu: (provided) => ({
+                  ...provided,
+                  backgroundColor: 'var(--bg-dropdown, #ffffff)',
+                }),
+                option: (provided, state) => ({
+                  ...provided,
+                  backgroundColor: state.isFocused ? 'var(--bg-option-focus, #f1f5f9)' : 'var(--bg-dropdown, #ffffff)',
+                  color: 'var(--text-dropdown, #1e293b)',
+                  ':hover': {
+                    backgroundColor: 'var(--bg-option-hover, #f8fafc)',
+                  }
+                }),
+                singleValue: (provided) => ({
+                  ...provided,
+                  color: 'var(--text-dropdown, #1e293b)',
+                }),
+                placeholder: (provided) => ({
+                  ...provided,
+                  color: 'var(--text-placeholder, #94a3b8)',
+                })
+              }}
             />
           </div>
 
@@ -631,10 +659,18 @@ export default function Home() {
               --select-border: #e2e8f0;
               --select-border-hover: #cbd5e1;
               --select-text: #1e293b;
-              --select-placeholder: #94a3b8;
-              --select-option-focus: #f1f5f9;
-              --select-option-hover: #f8fafc;
-              --select-menu-bg: #ffffff;
+              --select-placeholder: #64748b;
+              --select-option-focus: #0f172a;
+              --select-option-hover: #1e293b;
+              --select-menu-bg: #0f172a;
+              
+              /* Dropdown specific vars */
+              --bg-dropdown: #ffffff;
+              --border-dropdown: #e2e8f0;
+              --text-dropdown: #1e293b;
+              --text-placeholder: #94a3b8;
+              --bg-option-focus: #f1f5f9;
+              --bg-option-hover: #f8fafc;
             }
             
             .dark {
@@ -646,6 +682,45 @@ export default function Home() {
               --select-option-focus: #0f172a;
               --select-option-hover: #1e293b;
               --select-menu-bg: #0f172a;
+              
+              /* Dropdown specific vars for dark mode */
+              --bg-dropdown: #1e293b;
+              --border-dropdown: #334155;
+              --text-dropdown: #f1f5f9;
+              --text-placeholder: #94a3b8;
+              --bg-option-focus: #334155;
+              --bg-option-hover: #475569;
+            }
+            
+            /* Dark mode-specific styles */
+            .dark .mt-2 [class*="select__control"] {
+              background-color: #1e293b;
+              border-color: #475569;
+            }
+            
+            .dark .mt-2 [class*="select__menu"] {
+              background-color: #1e293b;
+            }
+            
+            .dark .mt-2 [class*="select__option"] {
+              background-color: #1e293b;
+              color: #f1f5f9;
+            }
+            
+            .dark .mt-2 [class*="select__option--is-focused"] {
+              background-color: #334155;
+            }
+            
+            .dark .mt-2 [class*="select__single-value"] {
+              color: #f1f5f9;
+            }
+            
+            .dark .mt-2 [class*="select__placeholder"] {
+              color: #94a3b8;
+            }
+            
+            .dark .mt-2 [class*="select__indicator"] {
+              color: #94a3b8;
             }
             
             .question-select .select__control {
